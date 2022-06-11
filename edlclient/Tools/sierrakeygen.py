@@ -145,12 +145,12 @@ class SierraGenerator():
     rtbl = bytearray()
 
     def __init__(self):
-        for _ in range(0, 0x14):
+        for i in range(0, 0x14):
             self.rtbl.append(0x0)
-        for _ in range(0, 0x100):
+        for i in range(0, 0x100):
             self.tbl.append(0x0)
 
-    def run(self, devicegeneration, challenge, _type):
+    def run(self, devicegeneration, challenge, type):
         challenge = bytearray(unhexlify(challenge))
 
         self.devicegeneration = devicegeneration
@@ -163,14 +163,14 @@ class SierraGenerator():
         lockid = prodtable[devicegeneration]["openlock"]
         clen = prodtable[devicegeneration]["clen"]
         if len(challenge) < clen:
-            challenge=[0 for _ in range(0, clen - len(challenge))]
+            challenge=[0 for i in range(0, clen - len(challenge))]
 
         challengelen = len(challenge)
-        if _type == 0:  # lockkey
+        if type == 0:  # lockkey
             idf = lockid
-        elif _type == 1:  # mepkey
+        elif type == 1:  # mepkey
             idf = mepid
-        elif _type == 2:  # cndkey
+        elif type == 2:  # cndkey
             idf = cndid
 
         key = keytable[idf * 16:(idf * 16) + 16]
@@ -308,7 +308,7 @@ class SierraGenerator():
 
     def SierraKeygen(self, challenge:bytearray, key: bytearray, challengelen:int, keylen:int):
         challenge = challenge
-        resultbuffer=bytearray([0 for _ in range(0, 0x100 + 1)])
+        resultbuffer=bytearray([0 for i in range(0, 0x100 + 1)])
         ret, keylen = self.SierraInit(key, keylen)
         if ret:
             for i in range(0, challengelen):
@@ -402,12 +402,12 @@ class SierraKeygen(metaclass=LogBase):
             info = self.cn.send("ATI")
             if info != -1:
                 revision = ""
-                _model = ""
+                model = ""
                 for line in info:
                     if "Revision" in line:
                         revision = line.split(":")[1].strip()
                     if "Model" in line:
-                        _model = line.split(":")[1].strip()
+                        model = line.split(":")[1].strip()
                 if revision != "":
                     if "9200" in revision:
                         devicegeneration = "MDM9200" #AC762S NTG9200H2_03.05.14.12ap
@@ -442,7 +442,8 @@ class SierraKeygen(metaclass=LogBase):
                     elif "X55" in revision or "9X40C" in revision:
                         if "NTGX55" in revision: #MR5100 NTGX55_10.25.15.02
                             devicegeneration = "SDX55"
-                        devicegeneration = "SDX55"
+                        else:
+                            devicegeneration = "SDX55"
                     else:
                         devicegeneration = ""
                     #Missing:
